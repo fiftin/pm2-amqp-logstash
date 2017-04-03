@@ -69,13 +69,13 @@ pmx.initModule({
       }
 
       bus.on('log:PM2', function (packet) {
-        log.debug(getLogRecordFromPacket(packet));
+        log.debug(getLogRecordFromPacket(packet), 'test');
       });
       bus.on('log:out', function (packet) {
-        log.debug(getLogRecordFromPacket(packet));
+        log.debug(getLogRecordFromPacket(packet), 'test');
       });
       bus.on('log:err', function (packet) {
-        log.error(getLogRecordFromPacket(packet));
+        log.error(getLogRecordFromPacket(packet), 'test');
       });
     });
   });
