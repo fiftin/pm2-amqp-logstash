@@ -49,8 +49,7 @@ pmx.initModule({
   function getLogRecordFromPacket(packet) {
     return {
       app: packet.name,
-      target_app: packet.pm_id,
-      msg: packet.data || packet.event
+      target_app: packet.pm_id
     };
   }
 
