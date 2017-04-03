@@ -68,15 +68,15 @@ pmx.initModule({
       }
 
       bus.on('log:PM2', function (packet) {
-        console.log(packet);
+        // console.log(packet);
         // log.debug(getLogRecordFromPacket(packet), packet.data);
       });
       bus.on('log:out', function (packet) {
-        console.log(packet);
+        // console.log(packet);
         // log.debug(getLogRecordFromPacket(packet), packet.data);
       });
       bus.on('log:err', function (packet) {
-        console.log(packet);
+        // console.log(packet);
         // log.error(getLogRecordFromPacket(packet), packet.data);
       });
     });
