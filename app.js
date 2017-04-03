@@ -46,6 +46,14 @@ pmx.initModule({
     level: conf.logLevel
   });
 
+  function getLogRecordFromPacket(packet) {
+    return {
+      app: packet.name,
+      target_app: packet.pm_id,
+      message: packet.data || packet.event
+    };
+  }
+
   pm2.connect((err) => {
     if (err) {
         console.log('error', err);
@@ -61,13 +69,13 @@ pmx.initModule({
       }
 
       bus.on('log:PM2', function (packet) {
-        log.debug(packet.data);
+        log.debug(getLogRecordFromPacket(packet));
       });
       bus.on('log:out', function (packet) {
-        log.debug(packet.data);
+        log.debug(getLogRecordFromPacket(packet));
       });
       bus.on('log:err', function (packet) {
-        log.error(packet.data);
+        log.error(getLogRecordFromPacket(packet));
       });
     });
   });
