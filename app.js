@@ -50,7 +50,7 @@ pmx.initModule({
     return {
       app: packet.name,
       target_app: packet.pm_id,
-      message: packet.data || packet.event
+      msg: packet.data || packet.event
     };
   }
 
