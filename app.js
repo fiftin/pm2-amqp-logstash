@@ -47,11 +47,11 @@ pmx.initModule({
   });
 
   function getLogRecordFromPacket(packet) {
-    //return {
-    //  app: packet.process.name,
-    //  target_app: packet.process.pm_id
-    //};
-    return packet.process;
+    return {
+      app: packet.process.name,
+      target_app: packet.process.pm_id
+    };
+    //return packet.process;
   }
 
   pm2.connect((err) => {
