@@ -123,9 +123,9 @@ pmx.initModule({
           return;
       }
 
-      bus.on('log:PM2', logNodejsPackage.bind(null, 'debug'));
-      bus.on('log:out', logNodejsPackage.bind(null, 'info'));
-      bus.on('log:err', logNodejsPackage.bind(null, 'error'));
+      bus.on('log:PM2', logNodejsPacket.bind(null, 'debug'));
+      bus.on('log:out', logNodejsPacket.bind(null, 'info'));
+      bus.on('log:err', logNodejsPacket.bind(null, 'error'));
     });
   });
 });
