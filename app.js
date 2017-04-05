@@ -2,6 +2,10 @@ const bunyan = require('bunyan');
 const pm2 = require('pm2');
 const pmx = require('pmx');
 
+
+const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
+const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
+
 pmx.initModule({
   widget: {
     logo: 'http://semicomplete.com/presentations/logstash-monitorama-2013/images/elasticsearch.png',
@@ -46,12 +50,63 @@ pmx.initModule({
     level: conf.logLevel
   });
 
-  function getLogRecordFromPacket(packet) {
-    return {
-      app: packet.process.name,
-      target_app: packet.process.pm_id
-    };
-    //return packet.process;
+
+  function parseNodejsPacket(packet) {
+    var ret = [];
+    
+    var lines = packet.split('\n');
+    
+    var lastRecord;
+
+    for (var i in lines) {
+      var line = lines[i];
+      var match = LOG_BLOCK_RE.exec(line);
+      if (match) {
+        line = match[1];
+      }
+      
+      match = LOG_RECORD_RE.exec(line);
+      if (match) {
+        ret.push(lastRecord);
+        lastRecord = match[1];
+      } else {
+        if (lastRecord) {
+          lastRecord += '\n';
+        }
+        lastRecord += line;
+      }
+    }
+
+    if (lastRecord) {
+      ret.push(lastRecord);
+    }
+
+    return ret.map(function(record) {
+      return {
+        app: packet.process.name,
+        message: record
+      };
+    });
+  }
+
+  function logNodejsPacket(level, packet) {
+    var records = parseNodejsPacket(packet);
+    for (var i in records) {
+      var record = records[i];
+      var message = record.message;
+      delete record.message;
+      switch (level) {
+        case 'debug':
+          log.debug(record, message);
+          break;
+        case 'info':
+          log.info(record, message);
+          break;
+        case 'error':
+          log.error(record, message);
+          break;
+      }
+    }
   }
 
   pm2.connect((err) => {
@@ -68,19 +123,8 @@ pmx.initModule({
           return;
       }
 
-      bus.on('log:PM2', function (packet) {
-        // console.log(packet);
-        log.debug(getLogRecordFromPacket(packet), packet.data);
-      });
-      bus.on('log:out', function (packet) {
-        // console.log(packet);
-        log.debug(getLogRecordFromPacket(packet), packet.data);
-      });
-      bus.on('log:err', function (packet) {
-        // console.log(packet);
-        log.error(getLogRecordFromPacket(packet), packet.data);
-      });
-    });
+      bus.on('log:PM2', logNodejsPackage.bind(null, 'debug');
+      bus.on('log:out', logNodejsPackage.bind(null, 'info');
+      bus.on('log:err', logNodejsPackage.bind(null, 'error');
   });
-
 });
