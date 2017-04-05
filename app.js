@@ -54,7 +54,7 @@ pmx.initModule({
   function parseNodejsPacket(packet) {
     var ret = [];
     
-    var lines = packet.split('\n');
+    var lines = packet.data.split('\n');
     
     var lastRecord;
 
