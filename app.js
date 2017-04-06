@@ -56,7 +56,7 @@ pmx.initModule({
     
     var lines = packet.data.split('\n');
     
-    var lastRecord;
+    var lastRecord = '';
 
     for (var i in lines) {
       var line = lines[i];
@@ -70,7 +70,7 @@ pmx.initModule({
         ret.push(lastRecord);
         lastRecord = match[1];
       } else {
-        if (lastRecord) {
+        if (lastRecord !== '') {
           lastRecord += '\n';
         }
         lastRecord += line;
