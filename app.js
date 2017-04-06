@@ -77,7 +77,7 @@ pmx.initModule({
       }
     }
 
-    if (lastRecord) {
+    if (lastRecord !== '') {
       ret.push(lastRecord);
     }
 
