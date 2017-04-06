@@ -94,6 +94,9 @@ pmx.initModule({
     for (var i in records) {
       var record = records[i];
       var message = record.message;
+      if (record.message == null || record.message === '') {
+        continue;
+      }
       delete record.message;
       switch (level) {
         case 'debug':
