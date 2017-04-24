@@ -14,6 +14,7 @@
     "url": "https://github.com/Franco-Poveda/pm2-amqp-logstash.git"
   },
   "config": {
+    "amqpPort": 5672,
     "amqpHost": "localhost",
     "amqpVhost": "test",
     "amqpUser": "guest",

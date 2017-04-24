@@ -28,6 +28,7 @@ pmx.initModule({
   }
 
   const amqpStream = require('bunyan-logstash-amqp').createStream({
+    port: conf.amqpPort || 5672,
     host: conf.amqpHost,
     vhost: conf.amqpVhost || 'sandbox',
     exchange: {
@@ -78,7 +79,7 @@ pmx.initModule({
         if (lastRecord !== '') {
           lastRecord += '\n';
         }
-        lastRecord += line;
+        lastRecord += line.trim();
       }
     }
 
