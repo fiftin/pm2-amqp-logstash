@@ -1,6 +1,6 @@
 {
   "name": "pm2-amqp-logstash",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Forward PM2 logs via a AMQP stream ready for Logstash",
   "main": "app.js",
   "dependencies": {
@@ -14,12 +14,12 @@
     "url": "https://github.com/Franco-Poveda/pm2-amqp-logstash.git"
   },
   "config": {
-    "amqpPort": 5672,
+    "amqpPort": 3001,
     "amqpHost": "localhost",
-    "amqpVhost": "test",
+    "amqpVhost": "/",
     "amqpUser": "guest",
     "amqpPasswd": "guest",
-    "amqpExchange": "test",
+    "amqpExchange": "amq.fanout",
     "amqpRoutingKey": "test",
     "logLevel": "debug",
     "logName": "log-stream"
