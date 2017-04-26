@@ -6,6 +6,8 @@ const pmx = require('pmx');
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
 const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\](.*)/;
+const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)/;
+
 
 pmx.initModule({
   widget: {
@@ -103,6 +105,15 @@ pmx.initModule({
       if (record.message == null || record.message === '') {
         continue;
       }
+      
+      if (record.app === 'media_saver' || record.app === 'media_transcoder') {
+        var match = LOG_MEDIA_RECORD_RE.exec(record.message);
+        if (match) {
+          level = match[1];
+          record.message = match[3];
+        }
+      }
+
       delete record.message;
       switch (level) {
         case 'debug':
