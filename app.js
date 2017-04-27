@@ -121,7 +121,7 @@ pmx.initModule({
             if (messages.length === 0) {
               messages.push('');
             }
-            messages[messages.length] += '\n' + line;
+            messages[messages.length - 1] += '\n' + line;
           }
         }
       } else {
