@@ -6,7 +6,7 @@ const pmx = require('pmx');
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
 const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\](.*)/;
-const LOG_MEDIA_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)/;
+const LOG_MEDIA_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
 
 pmx.initModule({
@@ -57,9 +57,9 @@ pmx.initModule({
 
   function parseNodejsPacket(packet) {
     var ret = [];
-    
+
     var lines = packet.data.split('\n');
-    
+
     var lastRecord = '';
 
     for (var i in lines) {
@@ -68,7 +68,7 @@ pmx.initModule({
       if (match) {
         line = match[1];
       }
-      
+
       match = LOG_RECORD_RE.exec(line);
       if (!match) {
         match = LOG_WWW_RECORD_RE.exec(line);
@@ -99,32 +99,50 @@ pmx.initModule({
 
   function logNodejsPacket(level, packet) {
     var records = parseNodejsPacket(packet);
-    for (var i in records) {
-      var record = records[i];
-      var message = record.message;
+
+    for (var recordIndex in records) {
+      var record = records[recordIndex];
+
       if (record.message == null || record.message === '') {
         continue;
       }
-      
+
+      var messages = [];
+
       if (record.app === 'media_saver' || record.app === 'media_transcoder') {
-        var match = LOG_MEDIA_RECORD_RE.exec(record.message);
-        if (match) {
-          level = match[1];
-          record.message = match[3];
+        var lines = record.message.spit('\n');
+        for (var lineIndex in lines) {
+          var line = lines[lineIndex];
+          var match = LOG_MEDIA_RECORD_RE.exec(line);
+          if (match) {
+            level = match[1];
+            messages.push(match[3]);
+          } else {
+            if (messages.length === 0) {
+              messages.push('');
+            }
+            messages[messages.length] += '\n' + line;
+          }
         }
+      } else {
+        messages.push(record.message);
       }
 
       delete record.message;
-      switch (level) {
-        case 'debug':
-          log.debug(record, message);
-          break;
-        case 'info':
-          log.info(record, message);
-          break;
-        case 'error':
-          log.error(record, message);
-          break;
+
+      for (var messageIndex in messages) {
+        var message = messages[messageIndex];
+        switch (level) {
+          case 'debug':
+            log.debug(record, message);
+            break;
+          case 'info':
+            log.info(record, message);
+            break;
+          case 'error':
+            log.error(record, message);
+            break;
+        }
       }
     }
   }
