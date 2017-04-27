@@ -110,14 +110,7 @@ pmx.initModule({
 
       var messages = [];
 
-      if (record.app === 'front') {
-        switch (record.message.split('\n')[0]) {
-          case 'Error: Unauthorized':
-          case 'Error: Could not authenticate you.':
-            level = 'warning';
-            break;
-        }
-      } else if (record.app === 'media_saver' || record.app === 'media_transcoder') {
+      if (record.app === 'media_saver' || record.app === 'media_transcoder') {
         var lines = record.message.split('\n');
         var lvl;
 
@@ -141,6 +134,14 @@ pmx.initModule({
 
         level = lvl || 'debug';
       } else {
+        if (record.app === 'front') {
+          switch (record.message.split('\n')[0]) {
+            case 'Error: Unauthorized':
+            case 'Error: Could not authenticate you.':
+              level = 'warning';
+              break;
+          }
+        }
         messages.push(record.message);
       }
 
