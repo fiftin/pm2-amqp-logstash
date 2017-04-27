@@ -111,7 +111,9 @@ pmx.initModule({
       var messages = [];
 
       if (record.app === 'media_saver' || record.app === 'media_transcoder') {
+        var noLinesMachesWithRegex = true;
         var lines = record.message.split('\n');
+
         for (var lineIndex in lines) {
           var line = lines[lineIndex];
           var match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
@@ -119,6 +121,7 @@ pmx.initModule({
             match = LOG_MEDIA_RECORD_RE.exec(line)
           }
           if (match) {
+            noLinesMachesWithRegex = false;
             level = match[1];
             messages.push(match[3]);
           } else {
@@ -127,6 +130,10 @@ pmx.initModule({
             }
             messages[messages.length - 1] += '\n' + line;
           }
+        }
+
+        if (noLinesMachesWithRegex) {
+          level = 'debug';
         }
       } else {
         messages.push(record.message);
