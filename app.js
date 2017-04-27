@@ -110,7 +110,7 @@ pmx.initModule({
       var messages = [];
 
       if (record.app === 'media_saver' || record.app === 'media_transcoder') {
-        var lines = record.message.spit('\n');
+        var lines = record.message.split('\n');
         for (var lineIndex in lines) {
           var line = lines[lineIndex];
           var match = LOG_MEDIA_RECORD_RE.exec(line);
