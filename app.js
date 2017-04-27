@@ -114,7 +114,10 @@ pmx.initModule({
         var lines = record.message.split('\n');
         for (var lineIndex in lines) {
           var line = lines[lineIndex];
-          var match = (lineIndex === 0 ? LOG_MEDIA_RECORD_WITH_DATE_RE : LOG_MEDIA_RECORD_RE).exec(line);
+          var match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
+          if (!match) {
+            match = LOG_MEDIA_RECORD_RE.exec(line)
+          }
           if (match) {
             level = match[1];
             messages.push(match[3]);
