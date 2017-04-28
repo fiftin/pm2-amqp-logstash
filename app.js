@@ -134,8 +134,9 @@ pmx.initModule({
 
         level = lvl || 'debug';
       } else {
-        if (record.app === 'front') {
+        if (record.app === 'front' || record.app === 'www') {
           switch (record.message.split('\n')[0]) {
+            case 'Error: Not Found':
             case 'Error: Unauthorized':
             case 'Error: Could not authenticate you.':
               level = 'warning';
