@@ -139,7 +139,7 @@ pmx.initModule({
             case 'Error: Not Found':
             case 'Error: Unauthorized':
             case 'Error: Could not authenticate you.':
-              level = 'warning';
+              level = 'debug';
               break;
           }
         }
