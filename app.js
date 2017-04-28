@@ -134,7 +134,6 @@ pmx.initModule({
 
         level = lvl || 'debug';
       } else {
-        /*
         if (record.app === 'front' || record.app === 'www') {
           var msgFirstLine = record.message.split('\n')[0]);
           switch (msgFirstLine) {
@@ -151,7 +150,6 @@ pmx.initModule({
               break;
           }
         }
-        */
         messages.push(record.message);
       }
 
