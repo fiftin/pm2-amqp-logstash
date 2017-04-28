@@ -140,13 +140,13 @@ pmx.initModule({
             case 'Error: Not Found':
             case 'Error: Unauthorized':
             case 'Error: Could not authenticate you.':
-              level = 'debug';
+              level = 'warning';
               break;
           }
           switch (msgFirstLine.split(',')[0]) {
             case 'Error: cannot join session in inappropriate state':
             case 'Error: no session runners':
-              level = 'debug';
+              level = 'warning';
               break;
           }
         }
@@ -164,6 +164,7 @@ pmx.initModule({
           case 'info':
             log.info(record, message);
             break;
+          case 'warn':
           case 'warning':
             log.warn(record, message);
             break;
