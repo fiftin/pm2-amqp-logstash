@@ -135,10 +135,17 @@ pmx.initModule({
         level = lvl || 'debug';
       } else {
         if (record.app === 'front' || record.app === 'www') {
-          switch (record.message.split('\n')[0]) {
+          var msgFirstLine = record.message.split('\n')[0]);
+          switch (msgFirstLine) {
             case 'Error: Not Found':
             case 'Error: Unauthorized':
             case 'Error: Could not authenticate you.':
+              level = 'debug';
+              break;
+          }
+          switch (msgFirstLine.split(',')[0]) {
+            case 'Error: cannot join session in inappropriate state';
+            case 'Error: no session runners';
               level = 'debug';
               break;
           }
