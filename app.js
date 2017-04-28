@@ -144,8 +144,8 @@ pmx.initModule({
               break;
           }
           switch (msgFirstLine.split(',')[0]) {
-            case 'Error: cannot join session in inappropriate state';
-            case 'Error: no session runners';
+            case 'Error: cannot join session in inappropriate state':
+            case 'Error: no session runners':
               level = 'debug';
               break;
           }
