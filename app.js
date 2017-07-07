@@ -5,11 +5,17 @@ const pmx = require('pmx');
 
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
+
+// www & front
 const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\](.*)/;
+
+// media_saver & media_transcoder
 const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)$/;
 const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
-
+// broadcaster
+const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] (.*)$/;
+const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
 pmx.initModule({
   widget: {
     logo: 'http://semicomplete.com/presentations/logstash-monitorama-2013/images/elasticsearch.png',
@@ -131,8 +137,11 @@ pmx.initModule({
             messages[messages.length - 1] += '\n' + line;
           }
         }
-
         level = lvl || 'debug';
+      } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
+        var match = LOG_BROADCAST_RECORD_RE.exec(record.message);
+        messages.push(match ? match[1] : record.message);
+        level = 'info';
       } else {
         if (record.app === 'front' || record.app === 'www') {
           var msgFirstLine = record.message.split('\n')[0];
