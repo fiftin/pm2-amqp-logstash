@@ -139,7 +139,7 @@ pmx.initModule({
         }
         level = lvl || 'debug';
       } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
-        var match = LOG_BROADCAST_RECORD_RE.exec(record.message);
+        var match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
         messages.push(match ? match[1] : record.message);
         level = 'info';
       } else {
