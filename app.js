@@ -166,7 +166,7 @@ pmx.initModule({
       delete record.message;
 
       if (conf.myHost) {
-        record.host = conf.myHost;
+        record.host = conf.myHost.split('.')[0];
       }
 
       if (conf.myProject) {
