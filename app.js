@@ -1,3 +1,5 @@
+'use strict';
+
 const bunyan = require('bunyan');
 const pm2 = require('pm2');
 const pmx = require('pmx');
