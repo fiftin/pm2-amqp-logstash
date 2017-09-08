@@ -63,15 +63,15 @@ pmx.initModule({
 
 
   function parseNodejsPacket(packet) {
-    var ret = [];
+    const ret = [];
 
-    var lines = packet.data.split('\n');
+    const lines = packet.data.split('\n');
 
-    var lastRecord = '';
+    let lastRecord = '';
 
-    for (var i in lines) {
-      var line = lines[i];
-      var match = LOG_BLOCK_RE.exec(line);
+    for (const i in lines) {
+      let line = lines[i];
+      let match = LOG_BLOCK_RE.exec(line);
       if (match) {
         line = match[1];
       }
@@ -105,24 +105,24 @@ pmx.initModule({
   }
 
   function logNodejsPacket(level, packet) {
-    var records = parseNodejsPacket(packet);
+    const records = parseNodejsPacket(packet);
 
-    for (var recordIndex in records) {
-      var record = records[recordIndex];
+    for (const recordIndex in records) {
+      const record = records[recordIndex];
 
       if (record.message == null || record.message === '') {
         continue;
       }
 
-      var messages = [];
+      const messages = [];
 
       if (record.app === 'media_saver' || record.app === 'media_transcoder') {
-        var lines = record.message.split('\n');
-        var lvl;
+        const lines = record.message.split('\n');
+        let lvl;
 
-        for (var lineIndex in lines) {
-          var line = lines[lineIndex];
-          var match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
+        for (const lineIndex in lines) {
+          const line = lines[lineIndex];
+          let match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
           if (!match) {
             match = LOG_MEDIA_RECORD_RE.exec(line)
           }
@@ -139,12 +139,12 @@ pmx.initModule({
         }
         level = lvl || 'debug';
       } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
-        var match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
+        const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
         messages.push(match ? match[1] : record.message);
         level = 'info';
       } else {
         if (record.app === 'front' || record.app === 'www') {
-          var msgFirstLine = record.message.split('\n')[0];
+          const msgFirstLine = record.message.split('\n')[0];
           switch (msgFirstLine) {
             case 'Error: Not Found':
             case 'Error: Unauthorized':
@@ -164,8 +164,20 @@ pmx.initModule({
 
       delete record.message;
 
-      for (var messageIndex in messages) {
-        var message = messages[messageIndex];
+      if (conf.myHost) {
+        record.host = conf.myHost;
+      }
+
+      if (conf.myProject) {
+        record.project = conf.myProject;
+      }
+
+      if (conf.myEnv) {
+        record.env = conf.myEnv;
+      }
+
+      for (const messageIndex in messages) {
+        const message = messages[messageIndex];
         switch (level) {
           case 'debug':
             log.debug(record, message);
