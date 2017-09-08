@@ -129,7 +129,6 @@ pmx.initModule({
             match = LOG_MEDIA_RECORD_RE.exec(line)
           }
           if (match) {
-            noLinesMachesWithRegex = false;
             lvl = match[1];
             messages.push(match[3]);
           } else {
