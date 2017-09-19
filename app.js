@@ -3,6 +3,8 @@
 const bunyan = require('bunyan');
 const pm2 = require('pm2');
 const pmx = require('pmx');
+const os = require('os');
+const exec = require('child_process').exec;
 
 
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
@@ -15,9 +17,184 @@ const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d
 const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)$/;
 const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
+// live
+
+
 // broadcaster
 const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
 const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
+
+
+function getStatistics() {
+  return new Promise(function(resolve, reject) {
+    const ret = {};
+    ret.freemem = os.freemem();
+    ret.totalmem = os.totalmem();
+    pm2.list(function(err, list) {
+      ret.processes = list.map(function(x) {
+        const ret = x.monit;
+        ret.name = x.name;
+        ret.restartTime = x.pm2_env.restart_time;
+        ret.status = x.pm2_env.status;
+        ret.createdAt = x.pm2_env.created_at;
+        ret.pmUptime = x.pm2_env.pm_uptime;
+        return ret;
+      });
+      exec('df /', function(error, stdout, stdrrr) {
+        if (error) {
+          console.log('Disk Space Resolving Error: ' + error);
+          ret.spaceResolvingError = error;
+          resolve(ret);
+          return;
+        }
+        const info = stdout.split('\n')[1].split(/\s+/);
+        ret.usedSpace = info[2];
+        ret.totalSpace = info[3];
+        ret.usedSpacePercents = info[4].substring(0, info[4] - 1);
+        resolve(ret);
+      });
+    });
+  });
+}
+
+
+function parseNodeJsPacket(packet) {
+  const ret = [];
+
+  const lines = packet.data.split('\n');
+
+  let lastRecord = '';
+
+  for (const i in lines) {
+    let line = lines[i];
+    let match = LOG_BLOCK_RE.exec(line);
+    if (match) {
+      line = match[1];
+    }
+
+    match = LOG_RECORD_RE.exec(line);
+    if (!match) {
+      match = LOG_WWW_RECORD_RE.exec(line);
+    }
+
+    if (match) {
+      ret.push(lastRecord);
+      lastRecord = match[1];
+    } else {
+      if (lastRecord !== '') {
+        lastRecord += '\n';
+      }
+      lastRecord += line.trim();
+    }
+  }
+
+  if (lastRecord !== '') {
+    ret.push(lastRecord);
+  }
+
+  return ret.map(function(record) {
+    return {
+      app: packet.process.name,
+      message: record
+    };
+  });
+}
+
+function logNodeJsPacket(log, level, packet) {
+  const records = parseNodeJsPacket(packet);
+
+  for (const recordIndex in records) {
+    const record = records[recordIndex];
+
+    if (record.message == null || record.message === '') {
+      continue;
+    }
+
+    const messages = [];
+
+    if (record.app === 'media_saver' || record.app === 'media_transcoder') {
+      const lines = record.message.split('\n');
+      let lvl;
+
+      for (const lineIndex in lines) {
+        const line = lines[lineIndex];
+        let match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
+        if (!match) {
+          match = LOG_MEDIA_RECORD_RE.exec(line)
+        }
+        if (match) {
+          lvl = match[1];
+          messages.push(match[3]);
+        } else {
+          if (messages.length === 0) {
+            messages.push('');
+          }
+          messages[messages.length - 1] += '\n' + line;
+        }
+      }
+      level = lvl || 'debug';
+    } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
+      const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
+      messages.push(match ? match[1] : record.message);
+      level = 'info';
+    } else {
+      if (record.app === 'front' || record.app === 'www') {
+        const msgFirstLine = record.message.split('\n')[0];
+        switch (msgFirstLine) {
+          case 'Error: Not Found':
+          case 'Error: Unauthorized':
+          case 'Error: Could not authenticate you.':
+            level = 'warning';
+            break;
+        }
+        switch (msgFirstLine.split(',')[0]) {
+          case 'Error: cannot join session in inappropriate state':
+          case 'Error: no session runners':
+            level = 'warning';
+            break;
+        }
+      }
+      messages.push(record.message);
+    }
+
+    delete record.message;
+
+    if (conf.myHost) {
+      record.host = conf.myHost.split('.')[0];
+    }
+
+    if (conf.myProject) {
+      record.project = conf.myProject;
+    }
+
+    if (conf.myEnv) {
+      record.env = conf.myEnv;
+    }
+
+    for (const messageIndex in messages) {
+      const message = messages[messageIndex];
+      switch (level) {
+        case 'debug':
+          log.debug(record, message);
+          break;
+        case 'info':
+          log.info(record, message);
+          break;
+        case 'warn':
+        case 'warning':
+          log.warn(record, message);
+          break;
+        case 'error':
+          log.error(record, message);
+          break;
+        default:
+          log.info(record, message);
+      }
+    }
+  }
+}
+
+// Init pm2 module
 pmx.initModule({
   widget: {
     logo: 'http://semicomplete.com/presentations/logstash-monitorama-2013/images/elasticsearch.png',
@@ -38,6 +215,7 @@ pmx.initModule({
       return;
   }
 
+  // Connect to RabbitMQ
   const amqpStream = require('bunyan-logstash-amqp').createStream({
     port: conf.amqpPort || 5672,
     host: conf.amqpHost,
@@ -48,11 +226,12 @@ pmx.initModule({
     },
     login: conf.amqpUser,
     password: conf.amqpPasswd
-  })
-    .on('connect', () => console.log('Connected to amqp [module]'))
+  }).on('connect', () => console.log('Connected to amqp [module]'))
     .on('close', () => console.log('Closed connection to amqp'))
     .on('error', console.log);
 
+
+  // Create logger
   const log = bunyan.createLogger({
     name: conf.logName,
     streams: [{
@@ -64,142 +243,15 @@ pmx.initModule({
   });
 
 
-  function parseNodejsPacket(packet) {
-    const ret = [];
-
-    const lines = packet.data.split('\n');
-
-    let lastRecord = '';
-
-    for (const i in lines) {
-      let line = lines[i];
-      let match = LOG_BLOCK_RE.exec(line);
-      if (match) {
-        line = match[1];
-      }
-
-      match = LOG_RECORD_RE.exec(line);
-      if (!match) {
-        match = LOG_WWW_RECORD_RE.exec(line);
-      }
-
-      if (match) {
-        ret.push(lastRecord);
-        lastRecord = match[1];
-      } else {
-        if (lastRecord !== '') {
-          lastRecord += '\n';
-        }
-        lastRecord += line.trim();
-      }
-    }
-
-    if (lastRecord !== '') {
-      ret.push(lastRecord);
-    }
-
-    return ret.map(function(record) {
-      return {
-        app: packet.process.name,
-        message: record
-      };
+  // Send statistics to logstash
+  setInterval(function() {
+    getStatistics().then(function(stats) {
+      log.info(stats);
     });
-  }
+  }, 30000);
 
-  function logNodejsPacket(level, packet) {
-    const records = parseNodejsPacket(packet);
 
-    for (const recordIndex in records) {
-      const record = records[recordIndex];
-
-      if (record.message == null || record.message === '') {
-        continue;
-      }
-
-      const messages = [];
-
-      if (record.app === 'media_saver' || record.app === 'media_transcoder') {
-        const lines = record.message.split('\n');
-        let lvl;
-
-        for (const lineIndex in lines) {
-          const line = lines[lineIndex];
-          let match = LOG_MEDIA_RECORD_WITH_DATE_RE.exec(line);
-          if (!match) {
-            match = LOG_MEDIA_RECORD_RE.exec(line)
-          }
-          if (match) {
-            lvl = match[1];
-            messages.push(match[3]);
-          } else {
-            if (messages.length === 0) {
-              messages.push('');
-            }
-            messages[messages.length - 1] += '\n' + line;
-          }
-        }
-        level = lvl || 'debug';
-      } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
-        const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
-        messages.push(match ? match[1] : record.message);
-        level = 'info';
-      } else {
-        if (record.app === 'front' || record.app === 'www') {
-          const msgFirstLine = record.message.split('\n')[0];
-          switch (msgFirstLine) {
-            case 'Error: Not Found':
-            case 'Error: Unauthorized':
-            case 'Error: Could not authenticate you.':
-              level = 'warning';
-              break;
-          }
-          switch (msgFirstLine.split(',')[0]) {
-            case 'Error: cannot join session in inappropriate state':
-            case 'Error: no session runners':
-              level = 'warning';
-              break;
-          }
-        }
-        messages.push(record.message);
-      }
-
-      delete record.message;
-
-      if (conf.myHost) {
-        record.host = conf.myHost.split('.')[0];
-      }
-
-      if (conf.myProject) {
-        record.project = conf.myProject;
-      }
-
-      if (conf.myEnv) {
-        record.env = conf.myEnv;
-      }
-
-      for (const messageIndex in messages) {
-        const message = messages[messageIndex];
-        switch (level) {
-          case 'debug':
-            log.debug(record, message);
-            break;
-          case 'info':
-            log.info(record, message);
-            break;
-          case 'warn':
-          case 'warning':
-            log.warn(record, message);
-            break;
-          case 'error':
-            log.error(record, message);
-            break;
-          default:
-            log.info(record, message);
-        }
-      }
-    }
-  }
-
+  // Send pm2 logs to logstash
   pm2.connect((err) => {
     if (err) {
         console.log('error', err);
@@ -214,9 +266,9 @@ pmx.initModule({
           return;
       }
 
-      bus.on('log:PM2', logNodejsPacket.bind(null, 'debug'));
-      bus.on('log:out', logNodejsPacket.bind(null, 'info'));
-      bus.on('log:err', logNodejsPacket.bind(null, 'error'));
+      bus.on('log:PM2', logNodeJsPacket.bind(null, log, 'debug'));
+      bus.on('log:out', logNodeJsPacket.bind(null, log, 'info'));
+      bus.on('log:err', logNodeJsPacket.bind(null, log, 'error'));
     });
   });
 });
