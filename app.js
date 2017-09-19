@@ -70,7 +70,6 @@ function getStatistics() {
       });
 
       ret.processesMemoryMb = Math.floor(ret.processesMemory / 1000000);
-      ret.processesCPU = 0;
 
       exec('df /', function(error, stdout, stdrrr) {
         if (error) {
