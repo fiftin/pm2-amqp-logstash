@@ -246,6 +246,7 @@ pmx.initModule({
   // Send statistics to logstash
   setInterval(function() {
     getStatistics().then(function(stats) {
+      stats.app = 'stats';
       if (conf.myHost) {
         stats.host = conf.myHost.split('.')[0];
       }
