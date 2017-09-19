@@ -40,13 +40,16 @@ function getStatistics() {
 
     pm2.list(function(err, list) {
       ret.processes = {};
+      ret.processesMemory = 0;
+      ret.processesCPU = 0;
 
       list.forEach(function(x) {
         const name = x.name;
-
         const proc = x.monit;
+        ret.processesMemory += proc.memory;
+        ret.processesCPU += proc.cpu;
         proc.name = name;
-        proc.memoryMb = Math.floor(x.monit.memory / 1000000);
+        proc.memoryMb = Math.floor(proc.memory / 1000000);
         proc.restartTime = x.pm2_env.restart_time;
         proc.status = x.pm2_env.status;
         proc.createdAt = new Date(x.pm2_env.created_at).toISOString();
@@ -65,6 +68,9 @@ function getStatistics() {
           ret.processes[name] = proc;
         }
       });
+
+      ret.processesMemoryMb = Math.floor(ret.processesMemory / 1000000);
+      ret.processesCPU = 0;
 
       exec('df /', function(error, stdout, stdrrr) {
         if (error) {
