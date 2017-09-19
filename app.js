@@ -28,19 +28,40 @@ const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_
 function getStatistics() {
   return new Promise(function(resolve, reject) {
     const ret = {};
-    ret.freemem = os.freemem();
-    ret.totalmem = os.totalmem();
-    ret.usedmemPercents = Math.floor(((ret.totalmem - ret.freemem) / ret.totalmem) * 100);
+    ret.freeMemory = os.freemem();
+    ret.totalMemory = os.totalmem();
+    ret.usedMemory = ret.totalMemory - ret.freeMemory;
+
+    ret.freeMemoryGb = Math.floor(ret.freeMemory / 1000000000);
+    ret.totalMemoryGb = Math.floor(ret.totalMemory / 1000000000);
+    ret.usedMemoryGb = Math.floor(ret.usedMemory / 1000000000);
+
+    ret.usedMemoryPct = Math.floor((ret.usedMemory / ret.totalMemory) * 100);
+
     pm2.list(function(err, list) {
-      ret.processes = list.map(function(x) {
-        const ret = x.monit;
-        ret.name = x.name;
-        ret.restartTime = x.pm2_env.restart_time;
-        ret.status = x.pm2_env.status;
-        ret.createdAt = x.pm2_env.created_at;
-        ret.pmUptime = x.pm2_env.pm_uptime;
-        return ret;
+      ret.processes = {};
+
+      list.forEach(function(x) {
+        const name = x.name;
+
+        const proc = x.monit;
+        proc.name = name;
+        proc.memoryMb = Math.floor(x.monit.memory / 1000000);
+        proc.restartTime = x.pm2_env.restart_time;
+        proc.status = x.pm2_env.status;
+        proc.createdAt = new Date(x.pm2_env.created_at).toISOString();
+        proc.pmUptime = new Date(x.pm2_env.pm_uptime).toISOString();
+
+        if (ret.processes[name]) {
+          if (!Array.isArray(ret.processes[name])) {
+            ret.processes[name] = [ret.processes[name]];
+          }
+          ret.processes.push(proc);
+        } else {
+          ret.processes[name] = proc;
+        }
       });
+
       exec('df /', function(error, stdout, stdrrr) {
         if (error) {
           console.log('Disk Space Resolving Error: ' + error);
@@ -49,9 +70,16 @@ function getStatistics() {
           return;
         }
         const info = stdout.split('\n')[1].split(/\s+/);
-        ret.usedSpace = info[2];
-        ret.totalSpace = info[3];
-        ret.usedSpacePercents = info[4].replace('%', '');
+
+        ret.usedSpaceKb = parseInt(info[2]);
+        ret.availableSpaceKb = parseInt(info[3]);
+        ret.totalSpaceKb = ret.usedSpaceKb + ret.availableSpaceKb;
+
+        ret.usedSpaceGb = Math.floor(ret.usedSpaceKb / 1000000);
+        ret.availableSpaceGb = Math.floor(ret.availableSpaceGb / 1000000);
+        ret.totalSpaceGb = Math.floor(ret.totalSpaceKb / 1000000);
+
+        ret.usedSpacePct = parseInt(info[4].replace('%', ''));
         resolve(ret);
       });
     });
