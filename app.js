@@ -52,6 +52,10 @@ function getStatistics() {
         proc.createdAt = new Date(x.pm2_env.created_at).toISOString();
         proc.pmUptime = new Date(x.pm2_env.pm_uptime).toISOString();
 
+        proc.uptimeMins = Math.floor((new Date() - new Date(x.pm2_env.pm_uptime)) / (1000 * 60));
+        proc.uptimeHours = Math.floor((new Date() - new Date(x.pm2_env.pm_uptime)) / (1000  * 60 * 60));
+        proc.uptimeDays = Math.floor((new Date() - new Date(x.pm2_env.pm_uptime)) / (1000  * 60 * 60 * 24));
+
         if (ret.processes[name]) {
           if (!Array.isArray(ret.processes[name])) {
             ret.processes[name] = [ret.processes[name]];
