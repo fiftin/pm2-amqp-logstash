@@ -59,9 +59,8 @@ function getStatistics() {
         if (ret.processes[name]) {
           if (!Array.isArray(ret.processes[name])) {
             ret.processes[name] = [ret.processes[name]];
-          } else {
-            ret.processes.push(proc);
           }
+          ret.processes[name].push(proc);
         } else {
           ret.processes[name] = proc;
         }
