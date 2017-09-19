@@ -30,6 +30,7 @@ function getStatistics() {
     const ret = {};
     ret.freemem = os.freemem();
     ret.totalmem = os.totalmem();
+    ret.usedmemPercents = Math.floor(((ret.totalmem - ret.freemem) / ret.totalmem) * 100);
     pm2.list(function(err, list) {
       ret.processes = list.map(function(x) {
         const ret = x.monit;
@@ -50,7 +51,7 @@ function getStatistics() {
         const info = stdout.split('\n')[1].split(/\s+/);
         ret.usedSpace = info[2];
         ret.totalSpace = info[3];
-        ret.usedSpacePercents = info[4].substring(0, info[4] - 1);
+        ret.usedSpacePercents = info[4].replace('%', '');
         resolve(ret);
       });
     });
