@@ -100,7 +100,7 @@ function parseNodeJsPacket(packet) {
   });
 }
 
-function logNodeJsPacket(log, level, packet) {
+function logNodeJsPacket(log, conf, level, packet) {
   const records = parseNodeJsPacket(packet);
 
   for (const recordIndex in records) {
@@ -246,6 +246,15 @@ pmx.initModule({
   // Send statistics to logstash
   setInterval(function() {
     getStatistics().then(function(stats) {
+      if (conf.myHost) {
+        stats.host = conf.myHost.split('.')[0];
+      }
+      if (conf.myProject) {
+        stats.project = conf.myProject;
+      }
+      if (conf.myEnv) {
+        stats.env = conf.myEnv;
+      }
       log.info(stats);
     });
   }, 30000);
@@ -266,9 +275,9 @@ pmx.initModule({
           return;
       }
 
-      bus.on('log:PM2', logNodeJsPacket.bind(null, log, 'debug'));
-      bus.on('log:out', logNodeJsPacket.bind(null, log, 'info'));
-      bus.on('log:err', logNodeJsPacket.bind(null, log, 'error'));
+      bus.on('log:PM2', logNodeJsPacket.bind(null, log, conf, 'debug'));
+      bus.on('log:out', logNodeJsPacket.bind(null, log, conf, 'info'));
+      bus.on('log:err', logNodeJsPacket.bind(null, log, conf, 'error'));
     });
   });
 });
