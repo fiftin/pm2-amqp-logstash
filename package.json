@@ -27,7 +27,7 @@
   "apps": [
     {
       "merge_logs": true,
-      "max_memory_restart": "50M",
+      "max_memory_restart": "250M",
       "script": "app.js"
     }
   ],
