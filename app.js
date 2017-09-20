@@ -232,6 +232,7 @@ function logNodeJsPacket(log, conf, level, packet) {
   }
 }
 
+
 // Init pm2 module
 pmx.initModule({
   widget: {
