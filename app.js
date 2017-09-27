@@ -171,6 +171,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         }
       }
       level = lvl || 'debug';
+      if (level != 'error') {
+        return;
+      }
     } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
       const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[1] : record.message);
