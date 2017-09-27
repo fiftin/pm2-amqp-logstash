@@ -171,7 +171,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         }
       }
       level = lvl || 'debug';
-      if (level != 'error') {
+      if (level === 'debug') {
         return;
       }
     } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
