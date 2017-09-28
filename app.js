@@ -214,7 +214,6 @@ function logNodeJsPacket(log, conf, level, packet) {
         const obj = parse(str);
         const relayNameEndIndex = stats[1].lastIndexOf('-');
         const layerTargets = {};
-
         for (const session of obj.statistic.sessions) {
           for (const stream of session.streams) {
             for (const layer of stram.layers) {
@@ -229,9 +228,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         record.relay = {
           name: stats[1].substring(0, relayNameEndIndex),
           usersCount: parseInt(obj.usersCount),
-          outputKbps: parseInt(obj.statistic.network.Network.outputKbps),
-          skipKbps: parseInt(obj.statistic.network.Network.averageUser.skipKbps),
-          outputPerUserKbps: parseInt(obj.staticstic.network.Network.averageUser.outputKbps),
+          outputKbps: obj.statistic.network ? parseInt(obj.statistic.network.Network.outputKbps) : 0,
+          skipKbps: obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.skipKbps) : 0,
+          outputPerUserKbps: obj.statistic.network ? parseInt(obj.staticstic.network.Network.averageUser.outputKbps) : 0,
           layerTargets: layerTargets  
         };
       } else if (relays) {
