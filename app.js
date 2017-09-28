@@ -10,6 +10,8 @@ const exec = require('child_process').exec;
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
 
+const LOG_LIVE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d\s+(\w+)\s+(.*)/;
+
 // www & front
 const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\](.*)/;
 
@@ -196,6 +198,10 @@ function logNodeJsPacket(log, conf, level, packet) {
       //messages.push(match ? match[1] : record.message);
       //level = 'info';
       return;
+    } else if (record.app === 'live') {
+      const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
+      messages.push(match ? match[2] : record.message);
+      level = match[1].toLowerCase();
     } else {
       if (record.app === 'front' || record.app === 'www') {
         const msgFirstLine = record.message.split('\n')[0];
