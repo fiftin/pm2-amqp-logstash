@@ -216,7 +216,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         const layerTargets = {};
         for (const session of obj.statistic.sessions) {
           for (const stream of session.streams) {
-            for (const layer of stram.layers) {
+            for (const layer of stream.layers) {
               if (layerTargets[layer.mediaLayer] == null) {
                 layerTargets[layer.mediaLayer] = 0;
               }
