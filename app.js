@@ -230,7 +230,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           usersCount: parseInt(obj.usersCount),
           outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.outputKbps) : 0,
           skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.skipKbps) : 0,
-          outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.staticstic.network.Network.averageUser.outputKbps) : 0,
+          outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.outputKbps) : 0,
           layerTargets: layerTargets  
         };
       } else if (relays) {
