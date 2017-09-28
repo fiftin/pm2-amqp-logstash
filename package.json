@@ -1,6 +1,6 @@
 {
   "name": "pm2-amqp-logstash",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Forward PM2 logs via a AMQP stream ready for Logstash",
   "main": "app.js",
   "dependencies": {

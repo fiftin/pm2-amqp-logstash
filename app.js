@@ -10,7 +10,7 @@ const exec = require('child_process').exec;
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
 
-const LOG_LIVE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d\s+(\w+)\s+(.*)/;
+const LOG_LIVE_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\.\d\d\d\s+(\w+)\s+(.*)/;
 
 // www & front
 const LOG_WWW_RECORD_RE = /^::ffff:127\.0\.0\.1 - - \[\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT\](.*)/;
