@@ -208,8 +208,8 @@ function logNodeJsPacket(log, conf, level, packet) {
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
 
-        const startIndex = str.indexOf('OutboundStatisticsPacket');
         let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
+        const startIndex = str.indexOf('OutboundStatisticsPacket');
         str = str.substring(startIndex);
         const obj = parse(str);
         const relayNameEndIndex = stats[1].lastIndexOf('-');
