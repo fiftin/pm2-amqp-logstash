@@ -8,7 +8,7 @@
     "pmx": "^1.1.0",
     "bunyan": "^1.8.9",
     "bunyan-logstash-amqp": "^1.0.7",
-    "parse_scala_log": "*"
+    "parse_scala_log": "^1.0.0"
   },
   "repository": {
     "type": "git",
