@@ -201,20 +201,16 @@ function logNodeJsPacket(log, conf, level, packet) {
       //level = 'info';
       return;
     } else if (record.app === 'live') {
-      console.log('#### LIVE ####');
-      console.log(record.message);
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match[1].toLowerCase();
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
-        console.log('#####');
-        console.log(stats);
 
         const startIndex = str.indexOf('OutboundStatisticsPacket');
-        let str = str.substring(startIndex);
-        str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
+        let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
+        str = str.substring(startIndex);
         const obj = parse(str);
         const relayNameEndIndex = stats[1].lastIndexOf('-');
         const layerTargets = {};
