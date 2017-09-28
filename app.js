@@ -226,7 +226,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         }
         
         record.relay = {
-          name: stats[1].substring(0, relayNameEndIndex)
+          name: stats[1].substring(0, relayNameEndIndex),
           usersCount: parseInt(obj.usersCount),
           outputKbps: parseInt(obj.statistic.network.Network.outputKbps),
           skipKbps: parseInt(obj.statistic.network.Network.averageUser.skipKbps),
