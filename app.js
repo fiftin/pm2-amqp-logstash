@@ -21,8 +21,8 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 
 
 // broadcaster
-const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
-const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
+//const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
+//const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
 
 
 function getStatistics() {
@@ -138,6 +138,11 @@ function parseNodeJsPacket(packet) {
   });
 }
 
+function isBroadcasterApp(record) {
+  return record.host === 'broadcaster';
+  //return BROADCASTER_APPS.indexOf(record.app) >= 0;
+}
+
 function logNodeJsPacket(log, conf, level, packet) {
   const records = parseNodeJsPacket(packet);
 
@@ -148,8 +153,20 @@ function logNodeJsPacket(log, conf, level, packet) {
       continue;
     }
 
-    const messages = [];
 
+    if (conf.myHost) {
+      record.host = conf.myHost.split('.')[0];
+    }
+
+    if (conf.myProject) {
+      record.project = conf.myProject;
+    }
+
+    if (conf.myEnv) {
+      record.env = conf.myEnv;
+    }
+
+    const messages = [];
     if (record.app === 'media_saver' || record.app === 'media_transcoder') {
       const lines = record.message.split('\n');
       let lvl;
@@ -171,13 +188,14 @@ function logNodeJsPacket(log, conf, level, packet) {
         }
       }
       level = lvl || 'debug';
-      if (level === 'debug') {
+      if (level !== 'error') {
         return;
       }
-    } if (BROADCASTER_APPS.indexOf(record.app) >= 0) {
-      const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
-      messages.push(match ? match[1] : record.message);
-      level = 'info';
+    } if (isBroadcasterApp(record)) {
+      //const match = LOG_BROADCAST_RECORD_RE.exec(record.message.trim());
+      //messages.push(match ? match[1] : record.message);
+      //level = 'info';
+      return;
     } else {
       if (record.app === 'front' || record.app === 'www') {
         const msgFirstLine = record.message.split('\n')[0];
@@ -197,20 +215,7 @@ function logNodeJsPacket(log, conf, level, packet) {
       }
       messages.push(record.message);
     }
-
     delete record.message;
-
-    if (conf.myHost) {
-      record.host = conf.myHost.split('.')[0];
-    }
-
-    if (conf.myProject) {
-      record.project = conf.myProject;
-    }
-
-    if (conf.myEnv) {
-      record.env = conf.myEnv;
-    }
 
     for (const messageIndex in messages) {
       const message = messages[messageIndex];
