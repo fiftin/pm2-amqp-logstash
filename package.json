@@ -1,13 +1,14 @@
 {
   "name": "pm2-amqp-logstash",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Forward PM2 logs via a AMQP stream ready for Logstash",
   "main": "app.js",
   "dependencies": {
     "pm2": "^2.4.3",
     "pmx": "^1.1.0",
     "bunyan": "^1.8.9",
-    "bunyan-logstash-amqp": "^1.0.7"
+    "bunyan-logstash-amqp": "^1.0.7",
+    "parse_scala_log": "*"
   },
   "repository": {
     "type": "git",

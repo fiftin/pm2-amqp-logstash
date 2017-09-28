@@ -5,6 +5,7 @@ const pm2 = require('pm2');
 const pmx = require('pmx');
 const os = require('os');
 const exec = require('child_process').exec;
+const parse = require('parse_scala_log');
 
 
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
@@ -20,7 +21,8 @@ const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)$/;
 const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
 // live
-
+const LOG_LIVE_STATS_RE = /Relay (\w\-\d)+ statistics OutboundStatisticsPacket/;
+const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // broadcaster
 //const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
@@ -202,6 +204,38 @@ function logNodeJsPacket(log, conf, level, packet) {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match[1].toLowerCase();
+      const stats = LOG_LIVE_STATS_RE.exec(record.message.trim());
+      const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
+      if (stats) {
+        const startIndex = str.indexOf('OutboundStatisticsPacket');
+        let str = str.substring(startIndex);
+        str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
+        const obj = parse(str);
+        const relayNameEndIndex = stats[1].lastIndexOf('-');
+        const layerTargets = {};
+
+        for (const session of obj.statistic.sessions) {
+          for (const stream of session.streams) {
+            for (const layer of stram.layers) {
+              if (layerTargets[layer.mediaLayer] == null) {
+                layerTargets[layer.mediaLayer] = 0;
+              }
+              layerTargets[layer.mediaLayer] += parseInt(layerTargets[layer.mediaLayer].targetsCount);
+            }
+          }
+        }
+        
+        record.relay = {
+          name: stats[1].substring(0, relayNameEndIndex)
+          usersCount: parseInt(obj.usersCount),
+          outputKbps: parseInt(obj.statistic.network.Network.outputKbps),
+          skipKbps: parseInt(obj.statistic.network.Network.averageUser.skipKbps),
+          outputPerUserKbps: parseInt(obj.staticstic.network.Network.averageUser.outputKbps),
+          layerTargets: layerTargets  
+        };
+      } else if (relays) {
+        record.numberOfRelays = parseInt(match[1]);
+      }
     } else {
       if (record.app === 'front' || record.app === 'www') {
         const msgFirstLine = record.message.split('\n')[0];
