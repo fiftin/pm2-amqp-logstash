@@ -21,7 +21,7 @@ const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)$/;
 const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
 // live
-const LOG_LIVE_STATS_RE = /Relay (\w\-\d)+ statistics OutboundStatisticsPacket/;
+const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // broadcaster
@@ -207,6 +207,9 @@ function logNodeJsPacket(log, conf, level, packet) {
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
+        console.log('#####');
+        console.log(stats);
+
         const startIndex = str.indexOf('OutboundStatisticsPacket');
         let str = str.substring(startIndex);
         str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
