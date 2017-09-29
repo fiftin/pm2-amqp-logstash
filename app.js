@@ -216,7 +216,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         const layerTargets = {
           Video100kbps: 0,
           Video300kbps: 0,
-          Video500kbps: 0
+          Video500kbps: 0,
           Video1000kbps: 0,
           Video1500kbps: 0,
         };
