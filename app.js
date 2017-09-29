@@ -213,7 +213,13 @@ function logNodeJsPacket(log, conf, level, packet) {
         str = str.substring(startIndex);
         const obj = parse(str);
         const relayNameEndIndex = stats[1].lastIndexOf('-');
-        const layerTargets = {};
+        const layerTargets = {
+          Video100kbps: 0,
+          Video300kbps: 0,
+          Video500kbps: 0
+          Video1000kbps: 0,
+          Video1500kbps: 0,
+        };
         for (const session of obj.statistic.sessions) {
           for (const stream of session.streams) {
             for (const layer of stream.layers) {
