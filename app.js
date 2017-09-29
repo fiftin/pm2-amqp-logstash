@@ -220,7 +220,7 @@ function logNodeJsPacket(log, conf, level, packet) {
               if (layerTargets[layer.mediaLayer] == null) {
                 layerTargets[layer.mediaLayer] = 0;
               }
-              layerTargets[layer.mediaLayer] += parseInt(layerTargets[layer.mediaLayer].targetsCount);
+              layerTargets[layer.mediaLayer] += parseInt(layer.targetsCount);
             }
           }
         }
@@ -234,7 +234,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           layerTargets: layerTargets  
         };
       } else if (relays) {
-        record.numberOfRelays = parseInt(match[1]);
+        record.numberOfRelays = parseInt(relays[1]);
       }
     } else {
       if (record.app === 'front' || record.app === 'www') {
