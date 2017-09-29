@@ -203,7 +203,7 @@ function logNodeJsPacket(log, conf, level, packet) {
     } else if (record.app === 'live') {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
-      level = match[1].toLowerCase();
+      level = match ? match[1].toLowerCase() : 'info';
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
