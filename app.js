@@ -211,34 +211,39 @@ function logNodeJsPacket(log, conf, level, packet) {
         let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
         const startIndex = str.indexOf('OutboundStatisticsPacket');
         str = str.substring(startIndex);
-        const obj = parse(str);
-        const relayNameEndIndex = stats[1].lastIndexOf('-');
-        const layerTargets = {
-          Video100kbps: 0,
-          Video300kbps: 0,
-          Video500kbps: 0,
-          Video1000kbps: 0,
-          Video1500kbps: 0,
-        };
-        for (const session of obj.statistic.sessions) {
-          for (const stream of session.streams) {
-            for (const layer of stream.layers) {
-              if (layerTargets[layer.mediaLayer] == null) {
-                layerTargets[layer.mediaLayer] = 0;
+        try {
+          const obj = parse(str);
+          const relayNameEndIndex = stats[1].lastIndexOf('-');
+          const layerTargets = {
+            Video100kbps: 0,
+            Video300kbps: 0,
+            Video500kbps: 0,
+            Video1000kbps: 0,
+            Video1500kbps: 0,
+          };
+          for (const session of obj.statistic.sessions) {
+            for (const stream of session.streams) {
+              for (const layer of stream.layers) {
+                if (layerTargets[layer.mediaLayer] == null) {
+                  layerTargets[layer.mediaLayer] = 0;
+                }
+                layerTargets[layer.mediaLayer] += parseInt(layer.targetsCount);
               }
-              layerTargets[layer.mediaLayer] += parseInt(layer.targetsCount);
             }
           }
+          
+          record.relay = {
+            name: stats[1].substring(0, relayNameEndIndex),
+            usersCount: parseInt(obj.usersCount),
+            outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.outputKbps) : 0,
+            skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.skipKbps) : 0,
+            outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.outputKbps) : 0,
+            layerTargets: layerTargets  
+          };
+        } catch(e) {
+          console.log('Scala log parse error: ');
+          console.log(str);
         }
-        
-        record.relay = {
-          name: stats[1].substring(0, relayNameEndIndex),
-          usersCount: parseInt(obj.usersCount),
-          outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.outputKbps) : 0,
-          skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.skipKbps) : 0,
-          outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.outputKbps) : 0,
-          layerTargets: layerTargets  
-        };
       } else if (relays) {
         record.numberOfRelays = parseInt(relays[1]);
       }
