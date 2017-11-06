@@ -25,7 +25,7 @@ const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
-const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - ?(.*)$/;
+const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - ?(.+)$/;
 const LOG_RED5_IGNORED = [
   'No streaming proxy present. Ignore'
 ];
@@ -270,14 +270,12 @@ function logNodeJsPacket(log, conf, level, packet) {
         if (!m) {
           messages.push(line);
         } else {
-          if (m[4] && m[4].trim() !== '') {
-            messages.push({
-              level: m[1],
-              thread: m[2],
-              package: m[3],
-              message: m[4]
-            });
-          }
+          messages.push({
+            level: m[1],
+            thread: m[2],
+            package: m[3],
+            message: m[4]
+          });
         }
       }
     } else {
@@ -306,13 +304,9 @@ function logNodeJsPacket(log, conf, level, packet) {
       if (typeof messages[messageIndex] === 'string') {
         message = messages[messageIndex];
       } else {
-        message = messages[messageIndex].message;
+        message = messages[messageIndex].message || 'WTF??????';
         record.package = messages[messageIndex].package;
         record.thread = messages[messageIndex].thread;
-      }
-
-      if (message === '') {
-        continue;
       }
 
       switch (messages[messageIndex].level || level) {
