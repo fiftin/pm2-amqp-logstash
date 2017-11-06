@@ -253,7 +253,6 @@ function logNodeJsPacket(log, conf, level, packet) {
         record.numberOfRelays = parseInt(relays[1]);
       }
     } else if (record.app === 'red5') {
-      console.log('Orig message: ' + record.message);
       const lines = record.message.split('\n');
       for (const i in lines) {
         const line = lines[i];
@@ -271,12 +270,14 @@ function logNodeJsPacket(log, conf, level, packet) {
         if (!m) {
           messages.push(line);
         } else {
-          messages.push({
-            level: m[1],
-            thread: m[2],
-            package: m[3],
-            message: m[4]
-          });
+          if (m[4] && m[4].trim() !== '') {
+            messages.push({
+              level: m[1],
+              thread: m[2],
+              package: m[3],
+              message: m[4]
+            });
+          }
         }
       }
     } else {
