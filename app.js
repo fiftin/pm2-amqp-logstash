@@ -276,7 +276,6 @@ function logNodeJsPacket(log, conf, level, packet) {
             package: m[3],
             message: m[4]
           });
-          console.log(messages[messages.length - 1]);
         }
       }
     } else {
@@ -303,16 +302,14 @@ function logNodeJsPacket(log, conf, level, packet) {
 
     for (const messageIndex in messages) {
       let message;
-      let rec;
       if (typeof messages[messageIndex] === 'string') {
         message = messages[messageIndex];
       } else {
         message = messages[messageIndex].message;
         record.package = messages[messageIndex].package;
         record.thread = messages[messageIndex].thread;
-        console.log(rec);
-        console.log('Message: ' + message);
       }
+      console.log('Message: ' + message);
       switch (messages[messageIndex].level || level) {
         case 'debug':
           log.debug(record, message);
