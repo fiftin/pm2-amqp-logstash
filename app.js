@@ -307,9 +307,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         message = messages[messageIndex];
         rec = record;
       } else {
-        message = messages[messageIndex].message;
-        rec = extend(record, message);
+        rec = extend(record, messages[messageIndex]);
         delete rec.message;
+        message = messages[messageIndex].message;
       }
       switch (level) {
         case 'debug':
