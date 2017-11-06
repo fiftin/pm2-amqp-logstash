@@ -308,8 +308,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         message = messages[messageIndex];
         rec = record;
       } else {
-        rec = extend(record, messages[messageIndex]);
-        delete rec.message;
+        rec = record;
+        // rec = extend(record, messages[messageIndex]);
+        // delete rec.message;
         message = messages[messageIndex].message;
         console.log(rec);
         console.log('Message: ' + message);
