@@ -305,12 +305,9 @@ function logNodeJsPacket(log, conf, level, packet) {
       if (typeof messages[messageIndex] === 'string') {
         message = messages[messageIndex];
       } else {
-        console.log('---------------------');
-        console.log('COUNT: ' + messages.length);
         message = messages[messageIndex].message;
         record.package = messages[messageIndex].package;
         record.thread = messages[messageIndex].thread;
-        console.log('Message: ' + message);
       }
 
       switch (messages[messageIndex].level || level) {
