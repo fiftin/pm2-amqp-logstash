@@ -308,7 +308,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         record.package = messages[messageIndex].package;
         record.thread = messages[messageIndex].thread;
       }
-
+      if (message === '') {
+        continue;
+      }
       switch (messages[messageIndex].level || level) {
         case 'debug':
           log.debug(record, message);
