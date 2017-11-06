@@ -276,6 +276,7 @@ function logNodeJsPacket(log, conf, level, packet) {
             package: m[3],
             message: m[4]
           });
+          console.log(messages[messages.length - 1]);
         }
       }
     } else {
