@@ -306,31 +306,29 @@ function logNodeJsPacket(log, conf, level, packet) {
       let rec;
       if (typeof messages[messageIndex] === 'string') {
         message = messages[messageIndex];
-        rec = record;
       } else {
-        rec = record;
-        // rec = extend(record, messages[messageIndex]);
-        // delete rec.message;
         message = messages[messageIndex].message;
+        record.package = messages[messageIndex].package;
+        record.thread = messages[messageIndex].thread;
         console.log(rec);
         console.log('Message: ' + message);
       }
-      switch (level) {
+      switch (messages[messageIndex].level || level) {
         case 'debug':
-          log.debug(rec, message);
+          log.debug(record, message);
           break;
         case 'info':
-          log.info(rec, message);
+          log.info(record, message);
           break;
         case 'warn':
         case 'warning':
-          log.warn(rec, message);
+          log.warn(record, message);
           break;
         case 'error':
-          log.error(rec, message);
+          log.error(record, message);
           break;
         default:
-          log.info(rec, message);
+          log.info(record, message);
       }
     }
   }
