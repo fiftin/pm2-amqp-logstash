@@ -25,7 +25,7 @@ const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
-const LOG_RED5_RE = /^[(\w+)] [Thread\-\d+]\s+(.*)$/;
+const LOG_RED5_RE = /^\[(\w+)] \[\w+-\d+]\s+(.*)$/;
 const LOG_RED5_IGNORED = [
   'No streaming proxy present. Ignore'
 ];
