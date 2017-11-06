@@ -25,7 +25,7 @@ const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
-const LOG_RED5_RE = /^\[(\w+)] \[\w+-\d+]\s+(.*)$/;
+const LOG_RED5_RE = /^\[(\w+)] \[\w+-\d+] (?:com\.vyulabs\.vydeo\.sdk\.rtmp\.Vydeo - )?(.*)$/;
 const LOG_RED5_IGNORED = [
   'No streaming proxy present. Ignore'
 ];
@@ -263,6 +263,11 @@ function logNodeJsPacket(log, conf, level, packet) {
           switch (m[1].toLowerCase()) {
             case 'error':
               level = 'error';
+              break;
+            case 'warn':
+              if (level !== 'error') {
+                level = 'warning';
+              }
               break;
           }
           let ignored = false;
