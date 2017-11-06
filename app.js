@@ -253,6 +253,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         record.numberOfRelays = parseInt(relays[1]);
       }
     } else if (record.app === 'red5') {
+      console.log('Orig message: ' + record.message);
       const lines = record.message.split('\n');
       for (const i in lines) {
         const line = lines[i];
