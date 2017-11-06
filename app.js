@@ -24,6 +24,9 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
+// red5
+const LOG_RED5_RE = /^[(\w+)] [Thread\-\d+]\s+(.*)$/;
+
 // broadcaster
 //const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
 //const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
@@ -157,7 +160,6 @@ function logNodeJsPacket(log, conf, level, packet) {
       continue;
     }
 
-
     if (conf.myHost) {
       record.host = conf.myHost.split('.')[0];
     }
@@ -171,6 +173,7 @@ function logNodeJsPacket(log, conf, level, packet) {
     }
 
     const messages = [];
+
     if (record.app === 'media_saver' || record.app === 'media_transcoder') {
       const lines = record.message.split('\n');
       let lvl;
@@ -247,6 +250,22 @@ function logNodeJsPacket(log, conf, level, packet) {
       } else if (relays) {
         record.numberOfRelays = parseInt(relays[1]);
       }
+    } else if (record.app === 'red5') {
+      const lines = record.message.split('\n');
+      for (const i in lines) {
+        const line = lines[i];
+        const m = line.match(LOG_RED5_RE);
+        if (!m) {
+          messages.push(line);
+        } else {
+          switch (m[1].toLowerCase()) {
+            case 'error':
+              level = 'error';
+              break;
+          }
+          messages.push(m[2]);
+        }
+      }
     } else {
       if (record.app === 'front' || record.app === 'www') {
         const msgFirstLine = record.message.split('\n')[0];
@@ -266,6 +285,7 @@ function logNodeJsPacket(log, conf, level, packet) {
       }
       messages.push(record.message);
     }
+
     delete record.message;
 
     for (const messageIndex in messages) {
