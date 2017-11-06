@@ -6,7 +6,7 @@ const pmx = require('pmx');
 const os = require('os');
 const exec = require('child_process').exec;
 const parse = require('parse_scala_log');
-
+const extend = require('xtend');
 
 const LOG_BLOCK_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \+\d\d:\d\d: (.*)/;
 const LOG_RECORD_RE = /^\w\w\w, \d\d \w\w\w \d\d\d\d \d\d:\d\d:\d\d GMT (.*)/;
@@ -25,7 +25,7 @@ const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
-const LOG_RED5_RE = /^\[(\w+)] \[\w+-\d+] (?:com\.vyulabs\.vydeo\.sdk\.rtmp\.Vydeo - )?(.*)$/;
+const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - ?(.*)$/;
 const LOG_RED5_IGNORED = [
   'No streaming proxy present. Ignore'
 ];
@@ -256,30 +256,26 @@ function logNodeJsPacket(log, conf, level, packet) {
       const lines = record.message.split('\n');
       for (const i in lines) {
         const line = lines[i];
+        let ignored = false;
+        for (const s of LOG_RED5_IGNORED) {
+          if (line.indexOf(s) !== -1) {
+            ignored = true;
+            break;
+          }
+        }
+        if (ignored) {
+          continue;
+        }
         const m = line.match(LOG_RED5_RE);
         if (!m) {
           messages.push(line);
         } else {
-          switch (m[1].toLowerCase()) {
-            case 'error':
-              level = 'error';
-              break;
-            case 'warn':
-              if (level !== 'error') {
-                level = 'warning';
-              }
-              break;
-          }
-          let ignored = false;
-          for (const s of LOG_RED5_IGNORED) {
-            if (m[2].indexOf(s) !== -1) {
-              ignored = true;
-              break;
-            }
-          }
-          if (!ignored) {
-            messages.push(m[2]);
-          }
+          messages.push({
+            level: m[1],
+            thread: m[2],
+            package: m[3],
+            message: m[4]
+          });
         }
       }
     } else {
@@ -305,23 +301,32 @@ function logNodeJsPacket(log, conf, level, packet) {
     delete record.message;
 
     for (const messageIndex in messages) {
-      const message = messages[messageIndex];
+      let message;
+      let rec;
+      if (typeof messages[messageIndex] === 'string') {
+        message = messages[messageIndex];
+        rec = record;
+      } else {
+        message = messages[messageIndex].message;
+        rec = extend(record, message);
+        delete rec.message;
+      }
       switch (level) {
         case 'debug':
-          log.debug(record, message);
+          log.debug(rec, message);
           break;
         case 'info':
-          log.info(record, message);
+          log.info(rec, message);
           break;
         case 'warn':
         case 'warning':
-          log.warn(record, message);
+          log.warn(rec, message);
           break;
         case 'error':
-          log.error(record, message);
+          log.error(rec, message);
           break;
         default:
-          log.info(record, message);
+          log.info(rec, message);
       }
     }
   }
