@@ -25,7 +25,7 @@ const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
-const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - ?(.+)$/;
+const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
 const LOG_RED5_IGNORED = [
   'No streaming proxy present. Ignore'
 ];
@@ -304,7 +304,7 @@ function logNodeJsPacket(log, conf, level, packet) {
       if (typeof messages[messageIndex] === 'string') {
         message = messages[messageIndex];
       } else {
-        message = messages[messageIndex].message || 'WTF??????';
+        message = messages[messageIndex].message;
         record.package = messages[messageIndex].package;
         record.thread = messages[messageIndex].thread;
       }
