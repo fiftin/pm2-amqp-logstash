@@ -26,7 +26,9 @@ const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 
 // red5
 const LOG_RED5_RE = /^[(\w+)] [Thread\-\d+]\s+(.*)$/;
-
+const LOG_RED5_IGNORED = [
+  'No streaming proxy present. Ignore'
+];
 // broadcaster
 //const LOG_BROADCAST_RECORD_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d:\d\d\d FileStreamer\[\d+:\d+\] ([\s\S]*)$/;
 //const BROADCASTER_APPS = ['test_facebook', 'test_youtube', 'test_fan', 'staging_facebook', 'staging_youtube', 'staging_fan', 'prod_facebook', 'prod_youtube', 'prod_fan'];
@@ -263,7 +265,16 @@ function logNodeJsPacket(log, conf, level, packet) {
               level = 'error';
               break;
           }
-          messages.push(m[2]);
+          let ignored = false;
+          for (const s of LOG_RED5_IGNORED) {
+            if (m[2].indexOf(s) !== -1) {
+              ignored = true;
+              break;
+            }
+          }
+          if (!ignored) {
+            messages.push(m[2]);
+          }
         }
       }
     } else {
