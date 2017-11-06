@@ -311,6 +311,8 @@ function logNodeJsPacket(log, conf, level, packet) {
         rec = extend(record, messages[messageIndex]);
         delete rec.message;
         message = messages[messageIndex].message;
+        console.log(rec);
+        console.log('Message: ' + message);
       }
       switch (level) {
         case 'debug':
