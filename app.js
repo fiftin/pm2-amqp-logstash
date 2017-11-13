@@ -220,6 +220,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           const obj = parse(str);
           const relayNameEndIndex = stats[1].lastIndexOf('-');
           const layerTargets = {
+            Audio: 0,
             Video100kbps: 0,
             Video300kbps: 0,
             Video500kbps: 0,
