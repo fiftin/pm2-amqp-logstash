@@ -231,6 +231,7 @@ function logNodeJsPacket(log, conf, level, packet) {
 						Video1200kbps: 0,
 						Video1300kbps: 0,
             Video1500kbps: 0,
+						Video2000kbps: 0
           };
           for (const session of obj.statistic.sessions) {
             for (const stream of session.streams) {
