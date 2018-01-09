@@ -222,9 +222,14 @@ function logNodeJsPacket(log, conf, level, packet) {
           const layerTargets = {
             Audio: 0,
             Video100kbps: 0,
+						Video200kbps: 0,
             Video300kbps: 0,
             Video500kbps: 0,
+						Video600kbps: 0,
+						Video700kbps: 0,
             Video1000kbps: 0,
+						Video1200kbps: 0,
+						Video1300kbps: 0,
             Video1500kbps: 0,
           };
           for (const session of obj.statistic.sessions) {
