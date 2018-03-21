@@ -205,7 +205,7 @@ function logNodeJsPacket(log, conf, level, packet) {
       //messages.push(match ? match[1] : record.message);
       //level = 'info';
       return;
-    } else if (record.app === 'live') {
+    } else if (record.app === 'live' || record.app === 'manager') {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match ? match[1].toLowerCase() : 'info';
