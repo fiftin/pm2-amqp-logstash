@@ -23,7 +23,7 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 // live
 const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
-
+const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
 // red5
 const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
 const LOG_RED5_IGNORED = [
@@ -209,15 +209,27 @@ function logNodeJsPacket(log, conf, level, packet) {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match ? match[1].toLowerCase() : 'info';
-      const stats = LOG_LIVE_STATS_RE.exec(record.message.trim());
+      const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
 
         let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
-        const startIndex = str.indexOf('OutboundStatisticsPacket');
+        let startIndex = str.indexOf('OutboundStatisticsPacket');
+        let isStats2 = false;
+        if (startIndex === -1) {
+          isStats2 = true;
+          startIndex = str.indexOf('InboundNotifications');
+        }
+
         str = str.substring(startIndex);
         try {
-          const obj = parse(str);
+          let obj = parse(str);
+
+          if (isStats2) {
+            obj = obj.notifications.notifications.content.value;
+            obj.statistic = obj.broadcast;
+          }
+
           const relayNameEndIndex = stats[1].lastIndexOf('-');
           const layerTargets = {
             Audio: 0,
@@ -233,6 +245,7 @@ function logNodeJsPacket(log, conf, level, packet) {
             Video1500kbps: 0,
 						Video2000kbps: 0
           };
+
           for (const session of obj.statistic.sessions) {
             for (const stream of session.streams) {
               for (const layer of stream.layers) {
