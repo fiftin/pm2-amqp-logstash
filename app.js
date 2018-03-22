@@ -23,7 +23,7 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 // live
 const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
-const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received InboundNotifications/;
+const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
 // red5
 const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
 const LOG_RED5_IGNORED = [
@@ -212,7 +212,6 @@ function logNodeJsPacket(log, conf, level, packet) {
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
-
         let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
         let startIndex = str.indexOf('OutboundStatisticsPacket');
         let isStats2 = false;
@@ -268,8 +267,9 @@ function logNodeJsPacket(log, conf, level, packet) {
         } catch(e) {
           console.log('Scala log parse error: ');
           console.log(e);
-          console.log('^^^^^^^^^^^^^^^^^^^^^^^');
+          console.log('-----------------------');
           console.log(str);
+          console.log('^^^^^^^^^^^^^^^^^^^^^^^');
         }
       } else if (relays) {
         record.numberOfRelays = parseInt(relays[1]);
