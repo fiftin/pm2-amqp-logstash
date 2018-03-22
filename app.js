@@ -267,6 +267,8 @@ function logNodeJsPacket(log, conf, level, packet) {
           };
         } catch(e) {
           console.log('Scala log parse error: ');
+          console.log(e);
+          console.log('^^^^^^^^^^^^^^^^^^^^^^^');
           console.log(str);
         }
       } else if (relays) {
