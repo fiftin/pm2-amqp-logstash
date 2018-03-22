@@ -23,7 +23,7 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 // live
 const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
-const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
+const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received InboundNotifications/;
 // red5
 const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
 const LOG_RED5_IGNORED = [
