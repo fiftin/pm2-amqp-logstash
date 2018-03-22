@@ -127,6 +127,9 @@ function parseNodeJsPacket(packet) {
     if (match) {
       ret.push(lastRecord);
       lastRecord = match[1];
+    } else if (LOG_LIVE_RECORD_RE.exec(line)) {
+      ret.push(lastRecord);
+      lastRecord = line;
     } else {
       if (lastRecord !== '') {
         lastRecord += '\n';
