@@ -226,7 +226,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           let obj = parse(str);
 
           if (isStats2) {
-            obj = obj.notifications.notifications.content.value;
+            obj = obj.notifications.notifications[0].content.value;
             obj.statistic = obj.broadcast;
           }
 
