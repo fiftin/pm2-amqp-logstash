@@ -337,9 +337,6 @@ function logNodeJsPacket(log, conf, level, packet) {
         continue;
       }
 
-      console.log(message);
-      console.log('^^^^^^^^^^^^^^^^^^');
-
       switch (messages[messageIndex].level || level) {
         case 'debug':
           log.debug(record, message);
