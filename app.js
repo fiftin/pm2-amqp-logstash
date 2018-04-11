@@ -156,10 +156,6 @@ function isBroadcasterApp(record) {
 }
 
 function logNodeJsPacket(log, conf, level, packet) {
-  console.log(level);
-  console.log(packet);
-  console.log('^^^^^^^^^^^^^^^^^^');
-
   const records = parseNodeJsPacket(packet);
 
   for (const recordIndex in records) {
@@ -340,6 +336,10 @@ function logNodeJsPacket(log, conf, level, packet) {
       if (message === '') {
         continue;
       }
+
+      console.log(message);
+      console.log('^^^^^^^^^^^^^^^^^^');
+
       switch (messages[messageIndex].level || level) {
         case 'debug':
           log.debug(record, message);
