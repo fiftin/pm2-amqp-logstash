@@ -156,6 +156,10 @@ function isBroadcasterApp(record) {
 }
 
 function logNodeJsPacket(log, conf, level, packet) {
+  console.log(level);
+  console.log(packet);
+  console.log('^^^^^^^^^^^^^^^^^^');
+
   const records = parseNodeJsPacket(packet);
 
   for (const recordIndex in records) {
