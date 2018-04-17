@@ -212,16 +212,16 @@ function logNodeJsPacket(log, conf, level, packet) {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match ? match[1].toLowerCase() : 'info';
-      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+
       console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
       console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
       console.log(record.message.trim());
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
+      console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
       console.log(stats);
-      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
-      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+      console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
         let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
@@ -278,6 +278,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           };
 
           console.log(record);
+          console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
         } catch(e) {
           console.log('Scala log parse error: ');
           console.log(e);
