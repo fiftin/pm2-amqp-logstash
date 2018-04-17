@@ -276,6 +276,8 @@ function logNodeJsPacket(log, conf, level, packet) {
             outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.outputKbps) : 0,
             layerTargets: layerTargets  
           };
+
+          console.log(record);
         } catch(e) {
           console.log('Scala log parse error: ');
           console.log(e);
