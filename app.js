@@ -212,6 +212,15 @@ function logNodeJsPacket(log, conf, level, packet) {
       const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
       messages.push(match ? match[2] : record.message);
       level = match ? match[1].toLowerCase() : 'info';
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log(record.message.trim());
+      console.log(stats);
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
+      console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$');
       const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
       const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
       if (stats) {
