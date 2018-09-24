@@ -166,7 +166,7 @@ function mediaLayerToString(mediaLayer) {
     return mediaLayer.mediaType;
   }
 
-  return 'Video' + mediaLayer.bitrate + 'kbps';
+  return 'Video' + (parseInt(mediaLayer.bitrate) / 1000) + 'kbps';
 }
 
 function logNodeJsPacket(log, conf, level, packet) {
