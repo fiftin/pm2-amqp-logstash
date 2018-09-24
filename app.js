@@ -24,7 +24,7 @@ const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
 const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 // const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
-const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/LiveManager\) - Output\(\d+\) Push RunnerNotifications/;
+const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/LiveManager\) - Output\(\d+\) Push RunnerNotifications\(([\w\d-]+),/;
 
 // red5
 const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
@@ -251,7 +251,7 @@ function logNodeJsPacket(log, conf, level, packet) {
             obj.statistic = obj.broadcast;
           }
 
-          const relayNameEndIndex = stats[1].lastIndexOf('-');
+          //const relayNameEndIndex = stats[1].lastIndexOf('-');
           const layerTargets = {
             Audio: 0,
             Video100kbps: 0,
@@ -280,7 +280,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           }
           
           record.relay = {
-            name: relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
+            name: stats[1], //relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
             usersCount: parseInt(obj.usersCount),
             outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.outputKbps) : 0,
             skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.skipKbps) : 0,
