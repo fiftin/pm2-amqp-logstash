@@ -157,6 +157,18 @@ function isBroadcasterApp(record) {
   //return BROADCASTER_APPS.indexOf(record.app) >= 0;
 }
 
+function mediaLayerToString(mediaLayer) {
+  if (typeof mediaLayer === 'string') {
+    return mediaLayer;
+  }
+
+  if (mediaLayer.mediaType !== 'Video') {
+    return mediaLayer.mediaType;
+  }
+
+  return 'Video' + mediaLayer.bitrate + 'kbps';
+}
+
 function logNodeJsPacket(log, conf, level, packet) {
   const records = parseNodeJsPacket(packet);
 
@@ -235,7 +247,7 @@ function logNodeJsPacket(log, conf, level, packet) {
           let obj = parse(str);
 
           if (isStats2) {
-            obj = obj.notifications.notifications[0].content.value;
+            obj = obj.notifications.relayStatistics;
             obj.statistic = obj.broadcast;
           }
 
@@ -255,13 +267,14 @@ function logNodeJsPacket(log, conf, level, packet) {
 						Video2000kbps: 0
           };
 
-          for (const session of obj.broadcast.sessions) {
-            for (const stream of session.streams) {
-              for (const layer of stream.layers) {
-                if (layerTargets[layer.mediaLayer] == null) {
-                  layerTargets[layer.mediaLayer] = 0;
+          for (const session of (Array.isArray(obj.broadcast.sessions) ? obj.broadcast.sessions : [obj.broadcast.sessions])) {
+            for (const stream of (Array.isArray(session.streams) ? session.streams : [session.streams])) {
+              for (const layer of (Array.isArray(stream.layers) ? stream.layers : [stream.layers])) {
+                const mediaLayer = mediaLayerToString(layer.mediaLayer);
+                if (layerTargets[mediaLayer] == null) {
+                  layerTargets[mediaLayer] = 0;
                 }
-                layerTargets[layer.mediaLayer] += parseInt(layer.targetsCount);
+                layerTargets[mediaLayer] += parseInt(layer.targetsCount);
               }
             }
           }
@@ -269,9 +282,9 @@ function logNodeJsPacket(log, conf, level, packet) {
           record.relay = {
             name: relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
             usersCount: parseInt(obj.usersCount),
-            outputKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.outputKbps) : 0,
-            skipKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.averageUser.skipKbps) : 0,
-            outputPerUserKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.averageUser.outputKbps) : 0,
+            outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.outputKbps) : 0,
+            skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.skipKbps) : 0,
+            outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.outputKbps) : 0,
             layerTargets: layerTargets  
           };
 
