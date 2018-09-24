@@ -179,6 +179,24 @@ function getArray(obj) {
   return [obj];
 }
 
+function getVideoQualityGroup(mediaLayer) {
+  switch (mediaLayer) {
+    case 'Video100kbps':
+    case 'Video200kbps':
+    case 'Video300kbps':
+      return 'VideoLow';
+    case 'Video500kbps':
+    case 'Video600kbps':
+    case 'Video700kbps':
+    case 'Video1000kbps':
+      return 'VideoMedium';
+    case 'Video1200kbps':
+    case 'Video1300kbps':
+    case 'Video1500kbps':
+    case 'Video2000kbps':
+      return 'VideoHigh';
+  }
+}
 
 function logNodeJsPacket(log, conf, level, packet) {
   const records = parseNodeJsPacket(packet);
@@ -275,7 +293,11 @@ function logNodeJsPacket(log, conf, level, packet) {
 						Video1200kbps: 0,
 						Video1300kbps: 0,
             Video1500kbps: 0,
-						Video2000kbps: 0
+						Video2000kbps: 0,
+
+            VideoHigh: 0,
+            VideoMedium: 0,
+            VideoLow: 0,
           };
 
           for (const session of getArray(obj.broadcast.sessions)) {
@@ -285,7 +307,12 @@ function logNodeJsPacket(log, conf, level, packet) {
                 if (layerTargets[mediaLayer] == null) {
                   layerTargets[mediaLayer] = 0;
                 }
-                layerTargets[mediaLayer] += parseInt(layer.targetsCount);
+                const cnt = parseInt(layer.targetsCount);
+                layerTargets[mediaLayer] += cnt;
+                const group = getVideoQualityGroup();
+                if (group) {
+                  layerTargets[group] += cnt;
+                }
               }
             }
           }
