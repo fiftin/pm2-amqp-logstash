@@ -21,9 +21,11 @@ const LOG_MEDIA_RECORD_RE = /^(\w+)\s([^\s]+)\s(.*)$/;
 const LOG_MEDIA_RECORD_WITH_DATE_RE = /^\d\d\d\d-\d\d-\d\d \d\d:\d\d:[\d.]+:\s(\w+)\s([^\s]+)\s(.*)$/;
 
 // live
-const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
 const LOG_LIVE_RELAYS_RE = /Requested statistics from (\d+) relay\(s\)/;
-const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
+const LOG_LIVE_STATS_RE = /Relay ([\w\-\d]+) statistics OutboundStatisticsPacket/;
+// const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Stream.in(\d+)\(\d+\) Received/;
+const LOG_LIVE_STATS2_RE = /c\.v\.m\.runners\.LiveManager\$\$anon\$1 LiveManager\$\$anon\$1\(akka:\/\/runner\) - Output\(\d+\) Push RunnerNotifications/;
+
 // red5
 const LOG_RED5_RE = /^\[(\w+)] \[(\w+-\d+)] ([\w.]+) - (.+)$/;
 const LOG_RED5_IGNORED = [
@@ -220,10 +222,15 @@ function logNodeJsPacket(log, conf, level, packet) {
         let isStats2 = false;
         if (startIndex === -1) {
           isStats2 = true;
-          startIndex = str.indexOf('InboundNotifications');
+          startIndex = str.indexOf('notifications');
         }
 
         str = str.substring(startIndex);
+
+        if (str.endsWith(')')) {
+          str = str.substring(0, str.length - 1);
+        }
+
         try {
           let obj = parse(str);
 
@@ -248,7 +255,7 @@ function logNodeJsPacket(log, conf, level, packet) {
 						Video2000kbps: 0
           };
 
-          for (const session of obj.statistic.sessions) {
+          for (const session of obj.broadcast.sessions) {
             for (const stream of session.streams) {
               for (const layer of stream.layers) {
                 if (layerTargets[layer.mediaLayer] == null) {
@@ -262,9 +269,9 @@ function logNodeJsPacket(log, conf, level, packet) {
           record.relay = {
             name: relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
             usersCount: parseInt(obj.usersCount),
-            outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.outputKbps) : 0,
-            skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.skipKbps) : 0,
-            outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.Network.averageUser.outputKbps) : 0,
+            outputKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.outputKbps) : 0,
+            skipKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.averageUser.skipKbps) : 0,
+            outputPerUserKbps: obj.broadcast && obj.broadcast.network ? parseInt(obj.broadcast.network.Network.averageUser.outputKbps) : 0,
             layerTargets: layerTargets  
           };
 
