@@ -244,7 +244,7 @@ function logNodeJsPacket(log, conf, level, packet) {
         }
 
         try {
-          let obj = parse(str);
+          let obj = parse(str, 'new');
 
           if (isStats2) {
             obj = obj.notifications.relayStatistics;
