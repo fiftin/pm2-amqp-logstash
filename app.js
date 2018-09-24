@@ -169,6 +169,17 @@ function mediaLayerToString(mediaLayer) {
   return 'Video' + (parseInt(mediaLayer.bitrate) / 1000) + 'kbps';
 }
 
+function getArray(obj) {
+  if (Array.isArray(obj)) {
+    return obj;
+  }
+  if (obj == null) {
+    return [];
+  }
+  return [obj];
+}
+
+
 function logNodeJsPacket(log, conf, level, packet) {
   const records = parseNodeJsPacket(packet);
 
@@ -267,9 +278,9 @@ function logNodeJsPacket(log, conf, level, packet) {
 						Video2000kbps: 0
           };
 
-          for (const session of (Array.isArray(obj.broadcast.sessions) ? obj.broadcast.sessions : [obj.broadcast.sessions])) {
-            for (const stream of (Array.isArray(session.streams) ? session.streams : [session.streams])) {
-              for (const layer of (Array.isArray(stream.layers) ? stream.layers : [stream.layers])) {
+          for (const session of getArray(obj.broadcast.sessions)) {
+            for (const stream of getArray(session.streams)) {
+              for (const layer of getArray(stream.layers)) {
                 const mediaLayer = mediaLayerToString(layer.mediaLayer);
                 if (layerTargets[mediaLayer] == null) {
                   layerTargets[mediaLayer] = 0;
