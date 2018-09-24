@@ -309,7 +309,7 @@ function logNodeJsPacket(log, conf, level, packet) {
                 }
                 const cnt = parseInt(layer.targetsCount);
                 layerTargets[mediaLayer] += cnt;
-                const group = getVideoQualityGroup();
+                const group = getVideoQualityGroup(mediaLayer);
                 if (group) {
                   layerTargets[group] += cnt;
                 }
