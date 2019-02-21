@@ -252,92 +252,95 @@ function logNodeJsPacket(log, conf, level, packet) {
       //level = 'info';
       return;
     } else if (record.app === 'live' || record.app === 'manager') {
-      const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
-      messages.push(match ? match[2] : record.message);
-      level = match ? match[1].toLowerCase() : 'info';
-      const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
-      const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
-      if (stats) {
-        let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
-        let startIndex = str.indexOf('OutboundStatisticsPacket');
-        let isStats2 = false;
-        if (startIndex === -1) {
-          isStats2 = true;
-          startIndex = str.indexOf('notifications');
-        }
 
-        str = str.substring(startIndex);
+      // const match = LOG_LIVE_RECORD_RE.exec(record.message.trim());
+      // messages.push(match ? match[2] : record.message);
+      // level = match ? match[1].toLowerCase() : 'info';
+      // const stats = LOG_LIVE_STATS_RE.exec(record.message.trim()) || LOG_LIVE_STATS2_RE.exec(record.message.trim());
+      // const relays = LOG_LIVE_RELAYS_RE.exec(record.message.trim());
+      // if (stats) {
+      //   let str = record.message.trim().replace(/\(Ballast Video ([^)]+)\)/g, '');
+      //   let startIndex = str.indexOf('OutboundStatisticsPacket');
+      //   let isStats2 = false;
+      //   if (startIndex === -1) {
+      //     isStats2 = true;
+      //     startIndex = str.indexOf('notifications');
+      //   }
+      //
+      //   str = str.substring(startIndex);
+      //
+      //   if (str.endsWith(')')) {
+      //     str = str.substring(0, str.length - 1);
+      //   }
+      //
+      //   try {
+      //     let obj = parse(str, 'new');
+      //
+      //     if (isStats2) {
+      //       obj = obj.notifications.relayStatistics;
+      //       obj.statistic = obj.broadcast;
+      //     }
+      //
+      //     //const relayNameEndIndex = stats[1].lastIndexOf('-');
+      //     const layerTargets = {
+      //       Audio: 0,
+      //       Video100kbps: 0,
+			// 			Video200kbps: 0,
+      //       Video300kbps: 0,
+      //       Video500kbps: 0,
+			// 			Video600kbps: 0,
+			// 			Video700kbps: 0,
+      //       Video1000kbps: 0,
+			// 			Video1200kbps: 0,
+			// 			Video1300kbps: 0,
+      //       Video1500kbps: 0,
+			// 			Video2000kbps: 0,
+      //
+      //       VideoHigh: 0,
+      //       VideoMedium: 0,
+      //       VideoLow: 0,
+      //     };
+      //
+      //     for (const session of getArray(obj.broadcast.sessions)) {
+      //       for (const stream of getArray(session.streams)) {
+      //         for (const layer of getArray(stream.layers)) {
+      //           const mediaLayer = mediaLayerToString(layer.mediaLayer);
+      //           if (layerTargets[mediaLayer] == null) {
+      //             layerTargets[mediaLayer] = 0;
+      //           }
+      //           const cnt = parseInt(layer.targetsCount);
+      //           layerTargets[mediaLayer] += cnt;
+      //           const group = getVideoQualityGroup(mediaLayer);
+      //           if (group) {
+      //             layerTargets[group] += cnt;
+      //           }
+      //         }
+      //       }
+      //     }
+      //
+      //     record.relay = {
+      //       name: stats[1], //relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
+      //       usersCount: parseInt(obj.usersCount),
+      //       outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.outputKbps) : 0,
+      //       skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.skipKbps) : 0,
+      //       outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.outputKbps) : 0,
+      //       layerTargets: layerTargets
+      //     };
+      //
+      //     console.log(record);
+      //     console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+      //   } catch(e) {
+      //     console.log('Scala log parse error: ');
+      //     console.log(e);
+      //     console.log('-----------------------');
+      //     console.log(str);
+      //     console.log('^^^^^^^^^^^^^^^^^^^^^^^');
+      //   }
+      // } else if (relays) {
+      //   record.numberOfRelays = parseInt(relays[1]);
+      // }
 
-        if (str.endsWith(')')) {
-          str = str.substring(0, str.length - 1);
-        }
 
-        try {
-          let obj = parse(str, 'new');
-
-          if (isStats2) {
-            obj = obj.notifications.relayStatistics;
-            obj.statistic = obj.broadcast;
-          }
-
-          //const relayNameEndIndex = stats[1].lastIndexOf('-');
-          const layerTargets = {
-            Audio: 0,
-            Video100kbps: 0,
-						Video200kbps: 0,
-            Video300kbps: 0,
-            Video500kbps: 0,
-						Video600kbps: 0,
-						Video700kbps: 0,
-            Video1000kbps: 0,
-						Video1200kbps: 0,
-						Video1300kbps: 0,
-            Video1500kbps: 0,
-						Video2000kbps: 0,
-
-            VideoHigh: 0,
-            VideoMedium: 0,
-            VideoLow: 0,
-          };
-
-          for (const session of getArray(obj.broadcast.sessions)) {
-            for (const stream of getArray(session.streams)) {
-              for (const layer of getArray(stream.layers)) {
-                const mediaLayer = mediaLayerToString(layer.mediaLayer);
-                if (layerTargets[mediaLayer] == null) {
-                  layerTargets[mediaLayer] = 0;
-                }
-                const cnt = parseInt(layer.targetsCount);
-                layerTargets[mediaLayer] += cnt;
-                const group = getVideoQualityGroup(mediaLayer);
-                if (group) {
-                  layerTargets[group] += cnt;
-                }
-              }
-            }
-          }
-          
-          record.relay = {
-            name: stats[1], //relayNameEndIndex > 0 ? stats[1].substring(0, relayNameEndIndex) : 'relay-ca-' + (parseInt(stats[1]) + 1),
-            usersCount: parseInt(obj.usersCount),
-            outputKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.outputKbps) : 0,
-            skipKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.skipKbps) : 0,
-            outputPerUserKbps: obj.statistic && obj.statistic.network ? parseInt(obj.statistic.network.averageUser.outputKbps) : 0,
-            layerTargets: layerTargets  
-          };
-
-          console.log(record);
-          console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
-        } catch(e) {
-          console.log('Scala log parse error: ');
-          console.log(e);
-          console.log('-----------------------');
-          console.log(str);
-          console.log('^^^^^^^^^^^^^^^^^^^^^^^');
-        }
-      } else if (relays) {
-        record.numberOfRelays = parseInt(relays[1]);
-      }
     } else if (record.app === 'red5') {
       const lines = record.message.split('\n');
       for (const i in lines) {
